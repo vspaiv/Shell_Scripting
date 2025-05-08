@@ -1,0 +1,40 @@
+#!/bin/bash
+
+# Configurações do Azure
+ACCOUNT_NAME="accountname"
+ACCOUNT_KEY="accountkey"
+CONTAINER_NAME="sftp"
+BLOB_NAME="historic/history-messages-11973032691-2025-04-16-email-1b7fc5d2-6f95-4698-af4a-80069eaae354.pdf"
+API_VERSION="2021-08-06"
+
+#example:
+#ACCOUNT_NAME="proaurargcstorage"
+#ACCOUNT_KEY="gzvZZY8USDDYaBJBiU00FvpY2Vbip4jLQ7FNXmxL6qQp65r67ECktxGbrut/UBYgCMa3j95+A=="
+
+# Data atual em UTC no formato correto
+DATE=$(LC_ALL=C date -u +"%a, %d %b %Y %H:%M:%S GMT")
+
+# UUID para rastrear a requisição
+UUID=$(uuidgen)
+
+# Canonicalized headers
+CANONICALIZED_HEADERS="x-ms-client-request-id:$UUID\nx-ms-date:$DATE\nx-ms-version:$API_VERSION"
+
+# Canonicalized resource
+CANONICALIZED_RESOURCE="/$ACCOUNT_NAME/$CONTAINER_NAME/$BLOB_NAME"
+
+# String to Sign (12 quebras de linha fixas antes dos headers x-ms)
+STRING_TO_SIGN="GET\n\n\n\n\n\n\n\n\n\n\n\n$CANONICALIZED_HEADERS\n$CANONICALIZED_RESOURCE"
+
+# Decodifica a chave (base64) e gera a assinatura HMAC-SHA256
+DECODED_KEY=$(echo -n "$ACCOUNT_KEY" | base64 --decode)
+SIGNATURE=$(echo -en "$STRING_TO_SIGN" | openssl dgst -sha256 -hmac "$DECODED_KEY" -binary | base64)
+
+# Faz a requisição ao Azure Blob Storage
+curl -X GET "https://proaurargc.telefonicabigdata.com/$CONTAINER_NAME/$BLOB_NAME" \
+     -H "x-ms-date: $DATE" \
+     -H "x-ms-version: $API_VERSION" \
+     -H "x-ms-client-request-id: $UUID" \
+     -H "Authorization: SharedKey $ACCOUNT_NAME:$SIGNATURE" \
+     -H "Content-Length: 0" \
+     --output arquivo.pdf -k
