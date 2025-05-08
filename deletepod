@@ -1,0 +1,14 @@
+#!/bin/bash
+
+NAMESPACES=( n1 n2 n3 )
+DEPLOYMENTS=( dep1 dep2 dep3 )
+
+for i in "${NAMESPACES[@]}"
+do
+  for x in "${DEPLOYMENTS[@]}"
+  do
+     # Get the pods in the deployment
+     PODS=$(kubectl -n $i get pods --no-headers | awk '{print $1}' | grep $x | tr '\n' ' ')
+     kubectl -n $i delete pods $PODS
+  done
+done
