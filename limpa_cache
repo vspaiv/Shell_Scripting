@@ -1,0 +1,28 @@
+#!/bin/bash
+
+export uuid
+read -p "Digite o UUID para limpar o Cache " uuid
+echo  "UUID a ser limpo:  $uuid "
+echo "=======Limpeza Subscribed Products: ======"
+curl --location --request PURGE "https://api-4p-op.telefonicabigdata.com/subscribed-products/v4/users/$uuid/products" --header 'Host: api.telefonica.com.br' --header 'X-Cache-Manager-Auth: 65FF3221-2978-4B3C-8632-34D458A2308C';
+echo ""
+echo "=======Limpeza User PRofile: ======= "
+echo ""
+curl --location --request PURGE "https://api-4p-op.telefonicabigdata.com/userprofile/v4/users/$uuid" --header 'X-Cache-Manager-Auth: 65FF3221-2978-4B3C-8632-34D458A2308C' --header 'Host: api.telefonica.com.br';
+echo ""
+echo "=======Limpeza Mobile Quota: ======= "
+echo ""
+curl --location --request PURGE "https://api-4p-op.telefonicabigdata.com/mobile-quota/v4/users/$uuid/quota" --header 'Host: api.telefonica.com.br' --header 'X-Cache-Manager-Auth: 65FF3221-2978-4B3C-8632-34D458A2308C';
+echo ""
+echo ""
+echo "=======Limpeza SAS - RTDM: ======="
+echo ""
+curl --location --request PURGE "https://api-4p-op.telefonicabigdata.com/RTDM/rest/runtime/decisions/CRM_MV_USR_MS?KEY=$uuid"  --header 'X-Cache-Manager-Auth: 65FF3221-2978-4B3C-8632-34D458A2308C'
+
+echo ""
+echo ""
+
+# curl --location --request POST -H "Content-Type: text/plain"  'http://oudprd.redecorp.br/CustomerProvisioning/searchUser' --header 'Content-Type: application/json' --header 'Authorization: Basic Y3B1c2Vydml2b25leHQ6WnBkbThpTENKcFRUM2VkWVhRaU9qRQ==' --data-raw '{"userID": "24999054557"}
+
+
+exit 0
